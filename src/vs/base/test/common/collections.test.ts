@@ -3,11 +3,8 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
-
 import * as assert from 'assert';
-import collections = require('vs/base/common/collections');
-
+import * as collections from 'vs/base/common/collections';
 
 suite('Collections', () => {
 
@@ -17,18 +14,18 @@ suite('Collections', () => {
 
 		let count = 0;
 		collections.forEach({ toString: 123 }, () => count++);
-		assert.equal(count, 1);
+		assert.strictEqual(count, 1);
 
 		count = 0;
 		let dict = Object.create(null);
 		dict['toString'] = 123;
 		collections.forEach(dict, () => count++);
-		assert.equal(count, 1);
+		assert.strictEqual(count, 1);
 
 		collections.forEach(dict, () => false);
 
 		collections.forEach(dict, (x, remove) => remove());
-		assert.equal(dict['toString'], null);
+		assert.strictEqual(dict['toString'], undefined);
 
 		// don't iterate over properties that are not on the object itself
 		let test = Object.create({ 'derived': true });
@@ -48,17 +45,12 @@ suite('Collections', () => {
 		let grouped = collections.groupBy(source, x => x.key);
 
 		// Group 1
-		assert.equal(grouped[group1].length, 2);
-		assert.equal(grouped[group1][0].value, value1);
-		assert.equal(grouped[group1][1].value, value2);
+		assert.strictEqual(grouped[group1].length, 2);
+		assert.strictEqual(grouped[group1][0].value, value1);
+		assert.strictEqual(grouped[group1][1].value, value2);
 
 		// Group 2
-		assert.equal(grouped[group2].length, 1);
-		assert.equal(grouped[group2][0].value, value3);
-	});
-
-	test('remove', () => {
-		assert(collections.remove({ 'far': 1 }, 'far'));
-		assert(!collections.remove({ 'far': 1 }, 'boo'));
+		assert.strictEqual(grouped[group2].length, 1);
+		assert.strictEqual(grouped[group2][0].value, value3);
 	});
 });

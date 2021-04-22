@@ -3,40 +3,47 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
-
 import { TernarySearchTree } from 'vs/base/common/map';
-import URI from 'vs/base/common/uri';
-import { TPromise } from 'vs/base/common/winjs.base';
-import { EventEmitter } from 'vs/base/common/eventEmitter';
-import { getConfigurationKeys } from 'vs/platform/configuration/common/model';
-import { IConfigurationOverrides, IConfigurationService, getConfigurationValue, IConfigurationValue, IConfigurationKeys, IConfigurationValues, IConfigurationData, Configuration, ConfigurationModel } from 'vs/platform/configuration/common/configuration';
+import { URI } from 'vs/base/common/uri';
+import { getConfigurationKeys, IConfigurationOverrides, IConfigurationService, getConfigurationValue, isConfigurationOverrides, IConfigurationValue } from 'vs/platform/configuration/common/configuration';
+import { Emitter } from 'vs/base/common/event';
 
-export class TestConfigurationService extends EventEmitter implements IConfigurationService {
-	public _serviceBrand: any;
+export class TestConfigurationService implements IConfigurationService {
+	public _serviceBrand: undefined;
 
-	private configuration = Object.create(null);
+	private configuration: any;
+	readonly onDidChangeConfiguration = new Emitter<any>().event;
 
-	private configurationByRoot: TernarySearchTree<any> = TernarySearchTree.forPaths<any>();
-
-	public reloadConfiguration<T>(section?: string): TPromise<T> {
-		return TPromise.as(this.getConfiguration());
+	constructor(configuration?: any) {
+		this.configuration = configuration || Object.create(null);
 	}
 
-	public getConfiguration(section?: string, overrides?: IConfigurationOverrides): any {
-		if (overrides && overrides.resource) {
-			const configForResource = this.configurationByRoot.findSubstr(overrides.resource.fsPath);
-			return configForResource || this.configuration;
+	private configurationByRoot: TernarySearchTree<string, any> = TernarySearchTree.forPaths<any>();
+
+	public reloadConfiguration<T>(): Promise<T> {
+		return Promise.resolve(this.getValue());
+	}
+
+	public getValue(arg1?: any, arg2?: any): any {
+		let configuration;
+		const overrides = isConfigurationOverrides(arg1) ? arg1 : isConfigurationOverrides(arg2) ? arg2 : undefined;
+		if (overrides) {
+			if (overrides.resource) {
+				configuration = this.configurationByRoot.findSubstr(overrides.resource.fsPath);
+			}
 		}
-
-		return this.configuration;
+		configuration = configuration ? configuration : this.configuration;
+		if (arg1 && typeof arg1 === 'string') {
+			return getConfigurationValue(configuration, arg1);
+		}
+		return configuration;
 	}
 
-	public getConfigurationData(): IConfigurationData<any> {
-		return new Configuration(new ConfigurationModel(), new ConfigurationModel(this.configuration)).toData();
+	public updateValue(key: string, value: any): Promise<void> {
+		return Promise.resolve(undefined);
 	}
 
-	public setUserConfiguration(key: any, value: any, root?: URI): Thenable<void> {
+	public setUserConfiguration(key: any, value: any, root?: URI): Promise<void> {
 		if (root) {
 			const configForRoot = this.configurationByRoot.get(root.fsPath) || Object.create(null);
 			configForRoot[key] = value;
@@ -45,35 +52,29 @@ export class TestConfigurationService extends EventEmitter implements IConfigura
 			this.configuration[key] = value;
 		}
 
-		return TPromise.as(null);
+		return Promise.resolve(undefined);
 	}
 
-	public onDidUpdateConfiguration() {
-		return { dispose() { } };
-	}
-
-	public lookup<C>(key: string, overrides?: IConfigurationOverrides): IConfigurationValue<C> {
-		const config = this.getConfiguration(undefined, overrides);
+	public inspect<T>(key: string, overrides?: IConfigurationOverrides): IConfigurationValue<T> {
+		const config = this.getValue(undefined, overrides);
 
 		return {
-			value: getConfigurationValue<C>(config, key),
-			default: getConfigurationValue<C>(config, key),
-			user: getConfigurationValue<C>(config, key),
-			workspace: null,
-			folder: null
+			value: getConfigurationValue<T>(config, key),
+			defaultValue: getConfigurationValue<T>(config, key),
+			userValue: getConfigurationValue<T>(config, key)
 		};
 	}
 
-	public keys(): IConfigurationKeys {
+	public keys() {
 		return {
 			default: getConfigurationKeys(),
 			user: Object.keys(this.configuration),
 			workspace: [],
-			folder: []
+			workspaceFolder: []
 		};
 	}
 
-	public values(): IConfigurationValues {
-		return {};
+	public getConfigurationData() {
+		return null;
 	}
 }

@@ -3,27 +3,35 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
-
 import * as assert from 'assert';
-import * as path from 'path';
-import * as os from 'os';
-import URI from 'vs/base/common/uri';
+import * as path from 'vs/base/common/path';
+import { tmpdir } from 'os';
+import { promises } from 'fs';
 import { extract } from 'vs/base/node/zip';
-import { generateUuid } from 'vs/base/common/uuid';
 import { rimraf, exists } from 'vs/base/node/pfs';
-
-const fixtures = URI.parse(require.toUrl('./fixtures')).fsPath;
+import { createCancelablePromise } from 'vs/base/common/async';
+import { getRandomTestPath, getPathFromAmdModule } from 'vs/base/test/node/testUtils';
 
 suite('Zip', () => {
 
-	test('extract should handle directories', () => {
-		const fixture = path.join(fixtures, 'extract.zip');
-		const target = path.join(os.tmpdir(), generateUuid());
+	let testDir: string;
 
-		return extract(fixture, target)
-			.then(() => exists(path.join(target, 'extension')))
-			.then(exists => assert(exists))
-			.then(() => rimraf(target));
+	setup(() => {
+		testDir = getRandomTestPath(tmpdir(), 'vsctests', 'zip');
+
+		return promises.mkdir(testDir, { recursive: true });
+	});
+
+	teardown(() => {
+		return rimraf(testDir);
+	});
+
+	test('extract should handle directories', async () => {
+		const fixtures = getPathFromAmdModule(require, './fixtures');
+		const fixture = path.join(fixtures, 'extract.zip');
+
+		await createCancelablePromise(token => extract(fixture, testDir, {}, token));
+		const doesExist = await exists(path.join(testDir, 'extension'));
+		assert(doesExist);
 	});
 });

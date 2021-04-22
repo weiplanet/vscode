@@ -4,27 +4,39 @@
  *--------------------------------------------------------------------------------------------*/
 
 .monaco-text-button {
-	-moz-box-sizing: border-box;
 	box-sizing: border-box;
-	display: inline-block;
+	display: flex;
 	width: 100%;
 	padding: 4px;
 	text-align: center;
 	cursor: pointer;
+	justify-content: center;
+	align-items: center;
+}
+
+.monaco-text-button:focus {
+	outline-offset: 2px !important;
 }
 
 .monaco-text-button:hover {
 	text-decoration: none !important;
 }
 
+.monaco-button.disabled:focus,
 .monaco-button.disabled {
-	opacity: 0.4;
+	opacity: 0.4 !important;
 	cursor: default;
 }
 
-/* Theming support */
+.monaco-text-button > .codicon {
+	margin: 0 0.2em;
+	color: inherit !important;
+}
 
-.vs .monaco-text-button:focus,
-.vs-dark .monaco-text-button:focus {
-	outline-color: rgba(255, 255, 255, .5); /* buttons have a blue color, so focus indication needs to be different */
+.monaco-button-dropdown {
+	display: flex;
+}
+
+.monaco-button-dropdown > .monaco-dropdown-button {
+	margin-left: 1px;
 }

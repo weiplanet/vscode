@@ -3,8 +3,6 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
-
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as os from 'os';
@@ -50,7 +48,6 @@ export function deleteFile(file: vscode.Uri): Thenable<boolean> {
 
 export function closeAllEditors(): Thenable<any> {
 	return vscode.commands.executeCommand('workbench.action.closeAllEditors');
-
 }
 
 export function withRandomFileEditor(initialContents: string, fileExtension: string = 'txt', run: (editor: vscode.TextEditor, doc: vscode.TextDocument) => Thenable<void>): Thenable<boolean> {
@@ -59,7 +56,7 @@ export function withRandomFileEditor(initialContents: string, fileExtension: str
 			return vscode.window.showTextDocument(doc).then((editor) => {
 				return run(editor, doc).then(_ => {
 					if (doc.isDirty) {
-						return doc.save().then(saved => {
+						return doc.save().then(() => {
 							return deleteFile(file);
 						});
 					} else {

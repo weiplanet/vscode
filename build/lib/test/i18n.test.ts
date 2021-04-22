@@ -15,7 +15,7 @@ suite('XLF Parser Tests', () => {
 	const translatedMessages = { key1: 'Кнопка #1', key2: 'Кнопка #2 &' };
 
 	test('Keys & messages to XLF conversion', () => {
-		let xlf = new i18n.XLF('vscode-workbench');
+		const xlf = new i18n.XLF('vscode-workbench');
 		xlf.addFile(originalFilePath, keys, messages);
 		const xlfString = xlf.toString();
 
@@ -23,8 +23,8 @@ suite('XLF Parser Tests', () => {
 	});
 
 	test('XLF to keys & messages conversion', () => {
-		i18n.XLF.parse(sampleTranslatedXlf).then(function(resolvedFiles) {
-			assert.deepEqual(resolvedFiles[0].messages, translatedMessages);
+		i18n.XLF.parse(sampleTranslatedXlf).then(function (resolvedFiles) {
+			assert.deepStrictEqual(resolvedFiles[0].messages, translatedMessages);
 			assert.strictEqual(resolvedFiles[0].originalFilePath, originalFilePath);
 		});
 	});
@@ -38,17 +38,17 @@ suite('XLF Parser Tests', () => {
 			editor = { name: 'vs/editor', project: editorProject },
 			base = { name: 'vs/base', project: editorProject },
 			code = { name: 'vs/code', project: workbenchProject },
-			workbenchParts = { name: 'vs/workbench/parts/html', project: workbenchProject },
-			workbenchServices = { name: 'vs/workbench/services/files', project: workbenchProject },
-			workbench = { name: 'vs/workbench', project: workbenchProject};
+			workbenchParts = { name: 'vs/workbench/contrib/html', project: workbenchProject },
+			workbenchServices = { name: 'vs/workbench/services/textfile', project: workbenchProject },
+			workbench = { name: 'vs/workbench', project: workbenchProject };
 
-		assert.deepEqual(i18n.getResource('vs/platform/actions/browser/menusExtensionPoint'), platform);
-		assert.deepEqual(i18n.getResource('vs/editor/contrib/clipboard/browser/clipboard'), editorContrib);
-		assert.deepEqual(i18n.getResource('vs/editor/common/modes/modesRegistry'), editor);
-		assert.deepEqual(i18n.getResource('vs/base/common/errorMessage'), base);
-		assert.deepEqual(i18n.getResource('vs/code/electron-main/window'), code);
-		assert.deepEqual(i18n.getResource('vs/workbench/parts/html/browser/webview'), workbenchParts);
-		assert.deepEqual(i18n.getResource('vs/workbench/services/files/node/fileService'), workbenchServices);
-		assert.deepEqual(i18n.getResource('vs/workbench/browser/parts/panel/panelActions'), workbench);
+		assert.deepStrictEqual(i18n.getResource('vs/platform/actions/browser/menusExtensionPoint'), platform);
+		assert.deepStrictEqual(i18n.getResource('vs/editor/contrib/clipboard/browser/clipboard'), editorContrib);
+		assert.deepStrictEqual(i18n.getResource('vs/editor/common/modes/modesRegistry'), editor);
+		assert.deepStrictEqual(i18n.getResource('vs/base/common/errorMessage'), base);
+		assert.deepStrictEqual(i18n.getResource('vs/code/electron-main/window'), code);
+		assert.deepStrictEqual(i18n.getResource('vs/workbench/contrib/html/browser/webview'), workbenchParts);
+		assert.deepStrictEqual(i18n.getResource('vs/workbench/services/textfile/node/testFileService'), workbenchServices);
+		assert.deepStrictEqual(i18n.getResource('vs/workbench/browser/parts/panel/panelActions'), workbench);
 	});
 });
